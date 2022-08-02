@@ -1,0 +1,14 @@
+title  Tehtävä 0.4
+
+Selain->Palvelin: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note
+Palvelin-->Selain: uudelleenohjauspyyntö
+Selain->Palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/notes
+Palvelin-->Selain: HTML koodi
+Selain->Palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.css
+Palvelin-->Selain: main.css
+Selain->Palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.js
+Palvelin-->Selain: main.js
+note over Selain: Js-koodin suorittaminen
+Selain->Palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/data.json
+Palvelin-->Selain: [{"content":"fourth note","date":"2022-08-01T15:42:44.907Z"}, ...]
+note over Selain: Renderöidään muistiinpanot näytölle \ntapahtumankäsittelijällä, kun data saapuu

@@ -1,0 +1,13 @@
+title  Tehtävä 0.6
+
+Selain->Palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/spa
+Palvelin-->Selain: HTML koodi
+Selain->Palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.css
+Palvelin-->Selain: main.css
+Selain->Palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/spa.js
+Palvelin-->Selain: main.js
+Selain->Palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/data.json
+Palvelin-->Selain: [{"content":"qa","date":"2022-08-01T16:40:54.163Z"}, ...]
+Selain->Palvelin: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+Palvelin-->Selain: {"message":"note created"}
+note over Selain: Js-koodi luo, lisää ja piirtää muistiinpanon \nsekä lähettää sen palvelimelle
