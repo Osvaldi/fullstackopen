@@ -5,14 +5,18 @@ const Headline = (props) => (
 )
 
 const Button = (props) => (
-  <button onClick = {props.handleClick}>
+  <button onClick={props.handleClick}>
     {props.text}
   </button>
 )
 
 const Statistics = (props) => (
 
-     props.statistics.map(element => <p> {element.name} {element.value} </p>)
+  props.statistics.map(element =>
+    <tr>
+      <td> {element.name}</td>
+      <td>{element.value}</td>
+    </tr>)
 
 )
 
@@ -40,23 +44,32 @@ const App = () => {
     },
     {
       name: 'average',
-      value: (good * 1 + bad * -1)/(good + neutral + bad)
+      value: (good * 1 + bad * -1) / (good + neutral + bad)
     },
     {
       name: 'positive',
-      value: good/(good + neutral + bad)  
+      value: good / (good + neutral + bad)
     }
   ]
   return (
-    
+
     <div>
-      <Headline text = 'Give feedback' />
-      <Button handleClick = {() => setGood(good + 1)} text ='Good' />
-      <Button handleClick = {() => setNeutral(neutral + 1)} text ='Neutral' />
-      <Button handleClick = {() => setBad(bad + 1)} text ='Bad' />
-      <Headline text = 'Statistics' />
-      { statistics[3].value === 0 && <p> No feedback given </p> }
-      { statistics[3].value !== 0 && <Statistics statistics = {statistics} /> }
+      <Headline text='Give feedback' />
+      <Button handleClick={() => setGood(good + 1)} text='Good' />
+      <Button handleClick={() => setNeutral(neutral + 1)} text='Neutral' />
+      <Button handleClick={() => setBad(bad + 1)} text='Bad' />
+      <Headline text='Statistics' />
+      {statistics[3].value === 0 && <p> No feedback given </p>}
+      {statistics[3].value !== 0 &&
+        <table>
+          <tbody>
+
+            <Statistics statistics={statistics} />
+
+          </tbody>
+        </table>
+
+      }
     </div>
   )
 }
