@@ -33,6 +33,18 @@ const App = () => {
     {
       name: 'Bad',
       value: bad
+    },
+    {
+      name: 'All',
+      value: good + neutral + bad
+    },
+    {
+      name: 'average',
+      value: (good * 1 + bad * -1)/(good + neutral + bad)
+    },
+    {
+      name: 'positive',
+      value: good/(good + neutral + bad)  
     }
   ]
   return (
@@ -43,7 +55,8 @@ const App = () => {
       <Button handleClick = {() => setNeutral(neutral + 1)} text ='Neutral' />
       <Button handleClick = {() => setBad(bad + 1)} text ='Bad' />
       <Headline text = 'Statistics' />
-      <Statistics statistics = {statistics} />
+      { statistics[3].value === 0 && <p> No feedback given </p> }
+      { statistics[3].value !== 0 && <Statistics statistics = {statistics} /> }
     </div>
   )
 }
