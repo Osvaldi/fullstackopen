@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
 import personsService from './services/persons'
-
+import Notification from './components/Notification'
 
 const Person = ({ name, number, id, onDelete }) => {
   return (
@@ -48,6 +48,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
 
   const hook = () => {
     console.log('effect')
@@ -58,8 +60,6 @@ const App = () => {
   }
 
   useEffect(hook, [])
-
-
 
   const addUserInput = async (event) => {
     event.preventDefault()
@@ -72,19 +72,27 @@ const App = () => {
     if (lowerNames.includes(personObject.name.toLowerCase())) {
       if (window.confirm(`${personObject.name} is already added to phonebook, replace the old number with a new one?`)) {
         const id = persons.find(p => p.name.toLowerCase() === personObject.name.toLowerCase()).id
-        await personsService.updatePerson(id, personObject)
-        setPersons(persons.map(p => p.id === id ? {id: p.id, name: personObject.name, number: personObject.number } : p))
-        setNewName('')
-        setNewNumber('')
+        try {
+          await personsService.updatePerson(id, personObject)
+          setPersons(persons.map(p => p.id === id ? { id: p.id, name: personObject.name, number: personObject.number } : p))
+          handleSuccessMessage(`Updated ${personObject.name}`)
+          setNewName('')
+          setNewNumber('')
+        } catch (e) {
+          handleErrorMessage(`Updating ${personObject.name} failed`)
+        }
       }
       return
     }
+    try {
       const created = await personsService.addPerson(personObject)
-      console.log('Created person:', created)
       setPersons(persons.concat(created))
+      handleSuccessMessage(`Added ${created.name}`)
       setNewName('')
       setNewNumber('')
-
+    } catch (e) {
+      handleErrorMessage(`Adding ${personObject.name} failed`)
+    }
   }
 
   const handleNameChange = (event) => {
@@ -99,12 +107,32 @@ const App = () => {
     setFilter(event.target.value)
   }
 
+  const handleErrorMessage = (message) => {
+    setErrorMessage(message)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 2000)
+  }
+
+  const handleSuccessMessage = (message) => {
+    setSuccessMessage(message)
+    setTimeout(() => {
+      setSuccessMessage(null)
+    }, 2000)
+  }
+
   const handleDelete = (id) => {
     console.log('deleting', id)
     const person = persons.find(p => p.id === id)
     if (!window.confirm(`Delete ${person.name}?`)) return
     personsService.removePerson(id)
-    setPersons(persons.filter(p => p.id !== id))
+      .then(() => {
+        setPersons(persons.filter(p => p.id !== id))
+        handleSuccessMessage(`Deleted ${person.name}`)
+      })
+      .catch(() => {
+        handleErrorMessage(`Information of ${person.name} has already been removed from server`)
+      })
   }
 
   const filteredPersons = persons.filter(p =>
@@ -114,7 +142,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-
+      {Notification.errorNotification({ message: errorMessage })}
+      {Notification.successNotification({ message: successMessage })}
       <Filter filter={filter} onChange={handleFilterChange} />
 
       <h3>Add a new</h3>
