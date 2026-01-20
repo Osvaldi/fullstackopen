@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
 import countriesService from './services/countries'
+import weatherService from './services/weather'
 import './index.css'
 
 const Country = ({ country, onShow }) => {
@@ -10,7 +11,7 @@ const Country = ({ country, onShow }) => {
   )
 }
 
-const CountryDetails = ({ country }) => {
+const CountryDetails = ({ country, weather }) => {
   const languages = Object.values(country.languages)
   const flag = country.flags.png
   return (
@@ -24,11 +25,20 @@ const CountryDetails = ({ country }) => {
           <li key={lang}>{lang}</li>
         ))}
       </ul>
-        <img src={flag} width={160} />
+      <img src={flag} width={160} />
+      <h2>Weather in {country.capital}</h2>
+      {weather ? (
+        <div>
+          <p>Temperature: {weather.current.temperature_2m} °C</p>
+          <img src={`http://openweathermap.org/img/wn/${String(weather.current.weather_code ?? '').padStart(2, '0')}n@2x.png`} />
+          <p>Wind: {weather.current.wind_speed_10m} m/s</p>
+        </div>
+      ) : (
+        <p>Loading weather...</p>
+      )}
     </div>
   )
 }
-
 
 const Search = ({ search, onChange }) => (
   <div>
@@ -40,11 +50,10 @@ const App = () => {
   const [countries, setCountries] = useState([])
   const [search, setSearch] = useState('')
   const [selectedCountry, setSelectedCountry] = useState(null)
+  const [weather, setWeather] = useState(null)
 
   const hook = () => {
-    console.log('effect')
     countriesService.getAllCountries().then(initialCountries => {
-      console.log('promise fulfilled')
       setCountries(initialCountries)
     })
   }
@@ -54,11 +63,27 @@ const App = () => {
   const handleSearch = (event) => {
     setSearch(event.target.value)
     setSelectedCountry(null)
+    setWeather(null)
   }
 
   const filteredCountries = countries.filter(c =>
     (c.name.common).toLowerCase().includes(search.toLowerCase())
   )
+
+  useEffect(() => {
+    const countryToShow = selectedCountry || (filteredCountries.length === 1 ? filteredCountries[0] : null)
+    if (!countryToShow) {
+      setWeather(null)
+      return
+    }
+    const coords = countryToShow.capitalInfo.latlng
+    if (Array.isArray(coords) && coords.length === 2) {
+      const [lat, lng] = coords
+      weatherService.getWeather(lat, lng).then(setWeather).catch(() => setWeather(null))
+    } else {
+      setWeather(null)
+    }
+  }, [selectedCountry, filteredCountries])
 
   return (
     <div>
@@ -66,7 +91,7 @@ const App = () => {
 
       <div>
         {selectedCountry ? (
-          <CountryDetails country={selectedCountry} />
+          <CountryDetails country={selectedCountry} weather={weather} />
         ) : (
           <>
             {filteredCountries.length > 10 && (
@@ -78,7 +103,7 @@ const App = () => {
               ))
             )}
             {filteredCountries.length === 1 && (
-              <CountryDetails country={filteredCountries[0]} />
+              <CountryDetails country={filteredCountries[0]} weather={weather} />
             )}
           </>
         )}
