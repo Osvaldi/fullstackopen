@@ -57,21 +57,31 @@ const App = () => {
 
   useEffect(hook, [])
 
+  const addPerson = (personObject) => {
+    const url = `http://localhost:3001/persons`
+    axios.post(url, personObject).then(response => {
+      setPersons(persons.concat(response.data))
+    })
+  }
+
   const addUserInput = (event) => {
     event.preventDefault()
-    const nameObject = {
+    const personObject = {
       name: newName,
       number: newNumber
     }
-    if (!nameObject.name || !nameObject.number) return
+    if (!personObject.name || !personObject.number) return
     const lowerNames = persons.map(p => p.name.toLowerCase())
-    if (lowerNames.includes(nameObject.name.toLowerCase())) {
-      alert(`${nameObject.name} is already added to phonebook`)
+    if (lowerNames.includes(personObject.name.toLowerCase())) {
+      alert(`${personObject.name} is already added to phonebook`)
       return
     }
-    setPersons(persons.concat(nameObject))
+
+    setPersons(persons.concat(personObject))
+    addPerson(personObject)
     setNewName('')
     setNewNumber('')
+    
   }
 
   const handleNameChange = (event) => {
