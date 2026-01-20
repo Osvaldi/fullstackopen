@@ -4,14 +4,14 @@ import axios from 'axios'
 import countriesService from './services/countries'
 import './index.css'
 
-const Country = ({ name }) => {
+const Country = ({ country, onShow }) => {
   return (
-    <p>{name}</p>
+    <p>{country.name.common} <button onClick={() => onShow(country)}>Show</button></p>
   )
 }
 
 const CountryDetails = ({ country }) => {
-  const languages = Object.values(country.languages || {})
+  const languages = Object.values(country.languages)
   const flag = country.flags.png
   return (
     <div>
@@ -39,6 +39,7 @@ const Search = ({ search, onChange }) => (
 const App = () => {
   const [countries, setCountries] = useState([])
   const [search, setSearch] = useState('')
+  const [selectedCountry, setSelectedCountry] = useState(null)
 
   const hook = () => {
     console.log('effect')
@@ -52,6 +53,7 @@ const App = () => {
 
   const handleSearch = (event) => {
     setSearch(event.target.value)
+    setSelectedCountry(null)
   }
 
   const filteredCountries = countries.filter(c =>
@@ -63,16 +65,22 @@ const App = () => {
       <Search search={search} onChange={handleSearch} />
 
       <div>
-        {filteredCountries.length > 10 && (
-          <p>Too many matches, specify another filter</p>
-        )}
-        {filteredCountries.length <= 10 && filteredCountries.length > 1 && (
-          filteredCountries.map(country => (
-            <Country key={country.name.common} name={country.name.common} />
-          ))
-        )}
-        {filteredCountries.length === 1 && (
-          <CountryDetails country={filteredCountries[0]} />
+        {selectedCountry ? (
+          <CountryDetails country={selectedCountry} />
+        ) : (
+          <>
+            {filteredCountries.length > 10 && (
+              <p>Too many matches, specify another filter</p>
+            )}
+            {filteredCountries.length <= 10 && filteredCountries.length > 1 && (
+              filteredCountries.map(country => (
+                <Country key={country.name.common} country={country} onShow={setSelectedCountry} />
+              ))
+            )}
+            {filteredCountries.length === 1 && (
+              <CountryDetails country={filteredCountries[0]} />
+            )}
+          </>
         )}
       </div>
     </div>
