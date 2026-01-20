@@ -4,17 +4,20 @@ import axios from 'axios'
 import personsService from './services/persons'
 
 
-const Person = ({ name, number }) => {
+const Person = ({ name, number, id, onDelete }) => {
   return (
-    <p style={{ margin: 0 }}>{name} {number}</p>
+    <p style={{ margin: 0 }}>
+      {name} {number} <button onClick={() => onDelete(id)}>delete</button>
+    </p>
   )
 }
 
-const Persons = ({ persons }) => {
+const Persons = ({ persons, onDelete }) => {
   return (
     <div>
       {persons.map(person => (
-        <Person key={person.name} name={person.name} number={person.number} />
+        console.log('Rendering person:', person.name, person.id),
+        <Person key={person.id} name={person.name} number={person.number} id={person.id} onDelete={onDelete} />
       ))}
     </div>
   )
@@ -58,7 +61,7 @@ const App = () => {
 
 
 
-  const addUserInput = (event) => {
+  const addUserInput = async (event) => {
     event.preventDefault()
     const personObject = {
       name: newName,
@@ -70,12 +73,12 @@ const App = () => {
       alert(`${personObject.name} is already added to phonebook`)
       return
     }
+      const created = await personsService.addPerson(personObject)
+      console.log('Created person:', created)
+      setPersons(persons.concat(created))
+      setNewName('')
+      setNewNumber('')
 
-    setPersons(persons.concat(personObject))
-    personsService.addPerson(personObject)
-    setNewName('')
-    setNewNumber('')
-    
   }
 
   const handleNameChange = (event) => {
@@ -88,6 +91,14 @@ const App = () => {
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value)
+  }
+
+  const handleDelete = (id) => {
+    console.log('deleting', id)
+    const person = persons.find(p => p.id === id)
+    if (!window.confirm(`Delete ${person.name}?`)) return
+    personsService.removePerson(id)
+    setPersons(persons.filter(p => p.id !== id))
   }
 
   const filteredPersons = persons.filter(p =>
@@ -112,7 +123,7 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons persons={filteredPersons} />
+      <Persons persons={filteredPersons} onDelete={handleDelete} />
     </div>
   )
 }
