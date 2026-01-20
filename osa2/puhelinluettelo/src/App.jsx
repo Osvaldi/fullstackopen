@@ -70,7 +70,13 @@ const App = () => {
     if (!personObject.name || !personObject.number) return
     const lowerNames = persons.map(p => p.name.toLowerCase())
     if (lowerNames.includes(personObject.name.toLowerCase())) {
-      alert(`${personObject.name} is already added to phonebook`)
+      if (window.confirm(`${personObject.name} is already added to phonebook, replace the old number with a new one?`)) {
+        const id = persons.find(p => p.name.toLowerCase() === personObject.name.toLowerCase()).id
+        await personsService.updatePerson(id, personObject)
+        setPersons(persons.map(p => p.id === id ? {id: p.id, name: personObject.name, number: personObject.number } : p))
+        setNewName('')
+        setNewNumber('')
+      }
       return
     }
       const created = await personsService.addPerson(personObject)
