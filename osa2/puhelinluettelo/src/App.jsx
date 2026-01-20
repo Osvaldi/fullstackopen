@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
+import personsService from './services/persons'
 
 
 const Person = ({ name, number }) => {
@@ -47,22 +48,15 @@ const App = () => {
 
   const hook = () => {
     console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
-      })
+    personsService.getAllPersons().then(initialPersons => {
+      console.log('promise fulfilled')
+      setPersons(initialPersons)
+    })
   }
 
   useEffect(hook, [])
 
-  const addPerson = (personObject) => {
-    const url = `http://localhost:3001/persons`
-    axios.post(url, personObject).then(response => {
-      setPersons(persons.concat(response.data))
-    })
-  }
+
 
   const addUserInput = (event) => {
     event.preventDefault()
@@ -78,7 +72,7 @@ const App = () => {
     }
 
     setPersons(persons.concat(personObject))
-    addPerson(personObject)
+    personsService.addPerson(personObject)
     setNewName('')
     setNewNumber('')
     
