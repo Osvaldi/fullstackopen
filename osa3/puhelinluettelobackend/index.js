@@ -39,7 +39,6 @@ app.get('/api/info', (request, response) => {
   <p>${Date()}</p>`)
 })
 
-// Toiminnallisuus tehty jo kohdassa 3.1 jättäessä osan note-harjoitusten omalla datalla testaamisesta jäljelle
 app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id
   const person = persons.find(person => person.id === id)
@@ -49,6 +48,12 @@ app.get('/api/persons/:id', (request, response) => {
   } else {
     response.status(404).end()
   }
+})
+
+app.delete('/api/persons/:id', (request, response) => {
+  const id = request.params.id
+  persons = persons.filter(person => person.id !== id)
+  response.status(204).end()
 })
 
 const PORT = 3001
