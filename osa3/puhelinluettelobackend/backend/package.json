@@ -1,5 +1,5 @@
 {
-  "name": "puhelinluettelobackend",
+  "name": "backend",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
@@ -11,6 +11,7 @@
   "author": "Otto Väyrynen",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.6",
     "express": "^5.2.1",
     "morgan": "^1.10.1"
   }
