@@ -1,0 +1,166 @@
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+
+import personsService from './services/persons'
+import Notification from './components/Notification'
+
+const Person = ({ name, number, id, onDelete }) => {
+  return (
+    <p style={{ margin: 0 }}>
+      {name} {number} <button onClick={() => onDelete(id)}>delete</button>
+    </p>
+  )
+}
+
+const Persons = ({ persons, onDelete }) => {
+  return (
+    <div>
+      {persons.map(person => (
+        console.log('Rendering person:', person.name, person.id),
+        <Person key={person.id} name={person.name} number={person.number} id={person.id} onDelete={onDelete} />
+      ))}
+    </div>
+  )
+}
+
+const PersonForm = ({ onSubmit, newName, onNameChange, newNumber, onNumberChange }) => (
+  <form onSubmit={onSubmit}>
+    <div>
+      name: <input value={newName} onChange={onNameChange} />
+    </div>
+    <div>
+      number: <input value={newNumber} onChange={onNumberChange} />
+    </div>
+    <div>
+      <button type="submit">add</button>
+    </div>
+  </form>
+)
+
+const Filter = ({ filter, onChange }) => (
+  <div>
+    filter shown with <input value={filter} onChange={onChange} />
+  </div>
+)
+
+const App = () => {
+  const [persons, setPersons] = useState([])
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [filter, setFilter] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
+
+  const hook = () => {
+    console.log('effect')
+    personsService.getAllPersons().then(initialPersons => {
+      console.log('promise fulfilled')
+      setPersons(initialPersons)
+    })
+  }
+
+  useEffect(hook, [])
+
+  const addUserInput = async (event) => {
+    event.preventDefault()
+    const personObject = {
+      name: newName,
+      number: newNumber
+    }
+    if (!personObject.name || !personObject.number) return
+    const lowerNames = persons.map(p => p.name.toLowerCase())
+    if (lowerNames.includes(personObject.name.toLowerCase())) {
+      if (window.confirm(`${personObject.name} is already added to phonebook, replace the old number with a new one?`)) {
+        const id = persons.find(p => p.name.toLowerCase() === personObject.name.toLowerCase()).id
+        try {
+          await personsService.updatePerson(id, personObject)
+          setPersons(persons.map(p => p.id === id ? { id: p.id, name: personObject.name, number: personObject.number } : p))
+          handleSuccessMessage(`Updated ${personObject.name}`)
+          setNewName('')
+          setNewNumber('')
+        } catch (e) {
+          handleErrorMessage(e.response.data.error)
+        }
+      }
+      return
+    }
+    try {
+      const created = await personsService.addPerson(personObject)
+      setPersons(persons.concat(created))
+      handleSuccessMessage(`Added ${created.name}`)
+      setNewName('')
+      setNewNumber('')
+    } catch (e) {
+      handleErrorMessage(e.response.data.error)
+    }
+  }
+
+  const handleNameChange = (event) => {
+    setNewName(event.target.value)
+  }
+
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value)
+  }
+
+  const handleFilterChange = (event) => {
+    setFilter(event.target.value)
+  }
+
+  const handleErrorMessage = (message) => {
+    setErrorMessage(message)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 2000)
+  }
+
+  const handleSuccessMessage = (message) => {
+    setSuccessMessage(message)
+    setTimeout(() => {
+      setSuccessMessage(null)
+    }, 2000)
+  }
+
+  const handleDelete = (id) => {
+    console.log('deleting', id)
+    const person = persons.find(p => p.id === id)
+    if (!window.confirm(`Delete ${person.name}?`)) return
+    personsService.removePerson(id)
+      .then(() => {
+        setPersons(persons.filter(p => p.id !== id))
+        handleSuccessMessage(`Deleted ${person.name}`)
+      })
+      .catch(() => {
+        handleErrorMessage(`Information of ${person.name} has already been removed from server`)
+      })
+  }
+
+  const filteredPersons = persons.filter(p =>
+    p.name.toLowerCase().includes(filter.toLowerCase())
+  )
+
+  return (
+    <div>
+      <h2>Phonebook</h2>
+      {Notification.errorNotification({ message: errorMessage })}
+      {Notification.successNotification({ message: successMessage })}
+      <Filter filter={filter} onChange={handleFilterChange} />
+
+      <h3>Add a new</h3>
+
+      <PersonForm
+        onSubmit={addUserInput}
+        newName={newName}
+        onNameChange={handleNameChange}
+        newNumber={newNumber}
+        onNumberChange={handleNumberChange}
+      />
+
+      <h3>Numbers</h3>
+
+      <Persons persons={filteredPersons} onDelete={handleDelete} />
+    </div>
+  )
+}
+
+export default App
