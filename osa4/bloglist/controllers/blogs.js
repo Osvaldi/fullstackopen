@@ -5,7 +5,7 @@ blogsRouter.get('/', (request, response, next) => {
   Blog.find({}).then((blogs) => {
     response.json(blogs)
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 blogsRouter.post('/', (request, response, next) => {
@@ -14,7 +14,7 @@ blogsRouter.post('/', (request, response, next) => {
   blog.save().then((result) => {
     response.status(201).json(result)
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 
