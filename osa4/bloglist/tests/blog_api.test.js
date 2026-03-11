@@ -3,7 +3,7 @@ const { test, after, beforeEach } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
-const { testBlogs } = require('./test_helper')
+const { testBlogs, blogsInDb } = require('./test_helper')
 const Blog = require('../models/blog')
 
 
@@ -44,6 +44,28 @@ test('unique identifier property of the blog posts is named id', async () => {
     assert.strictEqual(blog._id, undefined)
   })
 })
+
+test('a valid blog can be added ', async () => {
+  const newBlog = {
+    title: 'Test title',
+    author: 'Test Author',
+    url: 'https://example.com',
+    likes: 42
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsAfterPost = await blogsInDb()
+  assert.strictEqual(blogsAfterPost.length, testBlogs.length + 1)
+
+  const contents = blogsAfterPost.map((b) => b.title)
+  assert(contents.includes('Test title'))
+})
+
 
 after(async () => {
   await mongoose.connection.close()
