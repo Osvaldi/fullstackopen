@@ -36,6 +36,15 @@ test('a specific blog is within the returned blogs', async () => {
   assert(contents.includes('React patterns'))
 })
 
+test('unique identifier property of the blog posts is named id', async () => {
+  const response = await api.get('/api/blogs')
+
+  response.body.forEach((blog) => {
+    assert(blog.id)
+    assert.strictEqual(blog._id, undefined)
+  })
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
