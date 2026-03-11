@@ -5,6 +5,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const { testBlogs, blogsInDb } = require('./test_helper')
 const Blog = require('../models/blog')
+const { url } = require('node:inspector')
 
 
 
@@ -84,6 +85,33 @@ test('blog without likes has initial value 0', async () => {
   assert.strictEqual(addedBlog.likes, 0)
 })
 
+test('blog without title or url returns 400 Bad Request', async () => {
+  const newBlog1 = {
+    title: 'blog without title or url returns 400 Bad Request',
+    author: 'Test Author',
+    likes: 42
+  }
+
+  const newBlog2 = {
+    author: 'Test Author',
+    url: 'https://example.com',
+    likes: 42
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog1)
+    .expect(400)
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog2)
+    .expect(400)
+
+  const blogsAtEnd = await blogsInDb()
+
+  assert.strictEqual(blogsAtEnd.length, testBlogs.length)
+})
 
 after(async () => {
   await mongoose.connection.close()
