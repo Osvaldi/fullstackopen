@@ -11,6 +11,7 @@ const App = () => {
   const [password, setPassword] = useState('') 
   const [user, setUser] = useState(null)
 
+
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
@@ -35,6 +36,7 @@ const App = () => {
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(user)
       ) 
+      blogService.setToken(user.token)
       setUser(user)
       setUsername('')
       setPassword('')
@@ -43,6 +45,15 @@ const App = () => {
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
+    }
+  }
+
+  const handleBlogCreation = async ({ title, author, url }) => {
+    try {
+      const newBlog = await blogService.create({ title, author, url })
+      setBlogs(blogs.concat(newBlog))
+    } catch {
+      console.log('error creating blog')
     }
   }
 
@@ -56,10 +67,12 @@ const App = () => {
   
   return (
     isAuthenticated
-    ? <BlogsView 
-    name={user.name}
-    handleLogout={handleLogout}
-    blogs={blogs} /> 
+    ? <BlogsView
+        name={user.name}
+        blogs={blogs}
+        handleLogout={handleLogout}
+        onCreate={handleBlogCreation}
+      /> 
     : <LoginView
         username={username}
         password={password}
