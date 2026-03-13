@@ -71,6 +71,24 @@ const App = () => {
     setUser(null)
   }
 
+  const handleLikeUpdate = async (blog) => {
+    try {
+      const blogToUpdate = {
+        title: blog.title,
+        author: blog.author,
+        url: blog.url,
+        likes: blog.likes + 1
+      }
+
+      const updatedBlog = await blogService.update(blog.id, blogToUpdate)
+      setBlogs(blogs.map(b =>
+        b.id === blog.id ? { ...updatedBlog, user: blog.user } : b
+      ))
+    } catch {
+      showNotification('error updating blog', 'error')
+    }
+  }
+
 
   const isAuthenticated = user !== null
   
@@ -82,6 +100,7 @@ const App = () => {
             name={user.name}
             blogs={blogs}
             handleLogout={handleLogout}
+            handleLikeUpdate={handleLikeUpdate}
             onCreate={handleBlogCreation}
             blogFormRef={BlogViewRef}
           />

@@ -9,7 +9,7 @@ const blogStyle = {
   }
 
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, handleLikeUpdate }) => {
   const [showContent, setShowContent] = useState(false)
 
   const toggleContent = () => setShowContent(prev => !prev)
@@ -23,7 +23,7 @@ const Blog = ({ blog }) => {
           <br />
           {blog.url}
           <br />
-          likes {blog.likes} <button>like</button>
+          likes {blog.likes} <button onClick={() => handleLikeUpdate(blog)}>like</button>
           <br />
           {blog.user.name}
         </>
