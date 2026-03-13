@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import LoginView from './components/LoginView'
 import BlogsView from './components/BlogsView'
 import Notification from './components/Notification'
@@ -12,7 +12,7 @@ const App = () => {
   const [username, setUsername] = useState('') 
   const [password, setPassword] = useState('') 
   const [user, setUser] = useState(null)
-
+  const BlogViewRef = useRef()
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -57,6 +57,7 @@ const App = () => {
 
   const handleBlogCreation = async ({ title, author, url }) => {
     try {
+      BlogViewRef.current.toggleVisibility()
       const newBlog = await blogService.create({ title, author, url })
       setBlogs(blogs.concat(newBlog))
       showNotification(`a new blog ${newBlog.title} by ${newBlog.author} added`, 'success')
@@ -82,6 +83,7 @@ const App = () => {
             blogs={blogs}
             handleLogout={handleLogout}
             onCreate={handleBlogCreation}
+            blogFormRef={BlogViewRef}
           />
         : <LoginView
             username={username}
