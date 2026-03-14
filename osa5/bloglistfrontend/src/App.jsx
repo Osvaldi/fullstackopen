@@ -80,12 +80,24 @@ const App = () => {
         likes: blog.likes + 1
       }
 
-      const updatedBlog = await blogService.update(blog.id, blogToUpdate)
+    const updatedBlog = await blogService.update(blog.id, blogToUpdate)
       setBlogs(blogs.map(b =>
         b.id === blog.id ? { ...updatedBlog, user: blog.user } : b
       ))
     } catch {
       showNotification('error updating blog', 'error')
+    }
+  }
+
+  const handleDeleteBlog = async (blog) => {
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
+      try {
+        await blogService.remove(blog.id)
+        setBlogs(blogs.filter(b => b.id !== blog.id))
+        showNotification('blog removed', 'success')
+      } catch {
+        showNotification('error removing blog', 'error')
+      }
     }
   }
 
@@ -101,6 +113,7 @@ const App = () => {
             blogs={blogs}
             handleLogout={handleLogout}
             handleLikeUpdate={handleLikeUpdate}
+            handleDeleteBlog={handleDeleteBlog}
             onCreate={handleBlogCreation}
             blogFormRef={BlogViewRef}
           />

@@ -9,11 +9,10 @@ const blogStyle = {
   }
 
 
-const Blog = ({ blog, handleLikeUpdate }) => {
+const Blog = ({name, blog, handleLikeUpdate, handleDeleteBlog }) => {
   const [showContent, setShowContent] = useState(false)
 
   const toggleContent = () => setShowContent(prev => !prev)
-
   return (
     <div style={blogStyle}>
       {blog.title} {blog.author}
@@ -26,6 +25,10 @@ const Blog = ({ blog, handleLikeUpdate }) => {
           likes {blog.likes} <button onClick={() => handleLikeUpdate(blog)}>like</button>
           <br />
           {blog.user.name}
+          <br />
+          {blog.user.name === name && (
+            <button onClick={() => handleDeleteBlog(blog)}>remove</button>
+          )}
         </>
       )}
     </div>
