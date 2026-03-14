@@ -15,9 +15,9 @@ describe('Blog tests', () => {
       username: 'Test username'
     }
   }
-
+  const likeMockHandler = vi.fn()
   beforeEach(() => {
-    render(<Blog name={blog.user.name} blog={blog}/>)
+    render(<Blog name={blog.user.name} blog={blog} handleLikeUpdate={likeMockHandler}/>)
   })
 
   test('renders content', () => {
@@ -36,5 +36,16 @@ describe('Blog tests', () => {
     expect(screen.getByText(`${blog.url}`, { exact: false })).toBeInTheDocument()
     expect(screen.getByText(`likes ${blog.likes}`, { exact: false })).toBeInTheDocument()
 
+  })
+
+  test('clicking the like button twice calls the event handler twice', async () => {
+
+    const user = userEvent.setup()
+    const button = screen.queryByText('view')
+    await user.click(button)
+    const likeButton = screen.queryByText('like')
+    await user.click(likeButton)
+    await user.click(likeButton)
+    expect(likeMockHandler.mock.calls).toHaveLength(2)
   })
 })
