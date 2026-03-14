@@ -20,10 +20,10 @@ const NewBlogForm = ({ onCreate }) => {
         <div>
           <label>
             title
-            <input 
-            type="text" 
-            value={title} 
-            onChange={({ target }) => setTitle(target.value)} 
+            <input
+              type="text"
+              value={title}
+              onChange={({ target }) => setTitle(target.value)}
             />
           </label>
         </div>
@@ -31,19 +31,19 @@ const NewBlogForm = ({ onCreate }) => {
           <label>
             author
             <input
-             type="text" 
-             value={author} 
-             onChange={({ target }) => setAuthor(target.value)} 
-             />
+              type="text"
+              value={author}
+              onChange={({ target }) => setAuthor(target.value)}
+            />
           </label>
         </div>
         <div>
           <label>
             url
             <input
-             type="url"
-            value={url} 
-            onChange={({ target }) => setUrl(target.value)} 
+              type="url"
+              value={url}
+              onChange={({ target }) => setUrl(target.value)}
             />
           </label>
         </div>

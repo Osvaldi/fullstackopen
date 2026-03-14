@@ -9,15 +9,15 @@ import loginService from './services/login'
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [notification, setNotification] = useState(null)
-  const [username, setUsername] = useState('') 
-  const [password, setPassword] = useState('') 
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const BlogViewRef = useRef()
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   const showNotification = (message, type = 'success') => {
@@ -36,15 +36,15 @@ const App = () => {
     }
   }, [])
 
-  
+
   const handleLogin = async (event) => {
     event.preventDefault()
-      try {
+    try {
       const user = await loginService.login({ username, password })
 
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(user)
-      ) 
+      )
       blogService.setToken(user.token)
       setUser(user)
       setUsername('')
@@ -80,7 +80,7 @@ const App = () => {
         likes: blog.likes + 1
       }
 
-    const updatedBlog = await blogService.update(blog.id, blogToUpdate)
+      const updatedBlog = await blogService.update(blog.id, blogToUpdate)
       setBlogs(blogs.map(b =>
         b.id === blog.id ? { ...updatedBlog, user: blog.user } : b
       ))
@@ -103,27 +103,27 @@ const App = () => {
 
 
   const isAuthenticated = user !== null
-  
+
   return (
     <div>
       <Notification notification={notification} />
       {isAuthenticated
         ? <BlogsView
-            name={user.name}
-            blogs={blogs}
-            handleLogout={handleLogout}
-            handleLikeUpdate={handleLikeUpdate}
-            handleDeleteBlog={handleDeleteBlog}
-            onCreate={handleBlogCreation}
-            blogFormRef={BlogViewRef}
-          />
+          name={user.name}
+          blogs={blogs}
+          handleLogout={handleLogout}
+          handleLikeUpdate={handleLikeUpdate}
+          handleDeleteBlog={handleDeleteBlog}
+          onCreate={handleBlogCreation}
+          blogFormRef={BlogViewRef}
+        />
         : <LoginView
-            username={username}
-            password={password}
-            handleLogin={handleLogin}
-            onUsernameChange={({ target }) => setUsername(target.value)}
-            onPasswordChange={({ target }) => setPassword(target.value)}
-          />}
+          username={username}
+          password={password}
+          handleLogin={handleLogin}
+          onUsernameChange={({ target }) => setUsername(target.value)}
+          onPasswordChange={({ target }) => setPassword(target.value)}
+        />}
     </div>
   )
 }
