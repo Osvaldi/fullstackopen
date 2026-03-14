@@ -12,22 +12,22 @@ describe('BlogView tests', () => {
   })
 
 
-  test('clicking the like button twice calls the event handler twice', async () => {
+  test('clicking the create button calls the event handler and receives the input data', async () => {
 
     const user = userEvent.setup()
     console.log(screen.debug())
     const titleInput = screen.getByPlaceholderText('title...')
     const authorInput = screen.getByPlaceholderText('author...')
     const urlInput = screen.getByPlaceholderText('url...')
-    await user.type(titleInput, 'testing a form title...')
-    await user.type(authorInput, 'testing a form author...')
-    await user.type(urlInput, 'testing a form url...')
+    await user.type(titleInput, 'example title')
+    await user.type(authorInput, 'example author')
+    await user.type(urlInput, 'http://example.com')
     const createButton = screen.queryByText('create')
     await user.click(createButton)
 
     expect(createBlog.mock.calls).toHaveLength(1)
-    expect(createBlog.mock.calls[0][0].title).toBe('testing a form title...')
-    expect(createBlog.mock.calls[0][0].author).toBe('testing a form author...')
-    expect(createBlog.mock.calls[0][0].url).toBe('testing a form url...')
+    expect(createBlog.mock.calls[0][0].title).toBe('example title')
+    expect(createBlog.mock.calls[0][0].author).toBe('example author')
+    expect(createBlog.mock.calls[0][0].url).toBe('http://example.com')
   })
 })
