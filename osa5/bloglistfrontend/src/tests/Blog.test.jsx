@@ -30,7 +30,6 @@ describe('Blog tests', () => {
     const user = userEvent.setup()
     const button = screen.queryByText('view')
     await user.click(button)
-    console.log(screen.debug())
     expect(screen.getByText(`${blog.title}`, { exact: false })).toBeInTheDocument()
     expect(screen.getByText(`${blog.author}`, { exact: false })).toBeInTheDocument()
     expect(screen.getByText(`${blog.url}`, { exact: false })).toBeInTheDocument()
