@@ -97,4 +97,42 @@ test('only the creator of a blog can see the delete button', async ({ page, requ
     await expect(page.getByRole('button', { name: 'remove' })).not.toBeVisible()
   })
 
+  test('blogs are sorted by likes in descending order', async ({ page }) => {
+    await loginWith(page, 'mluukkai', 'salainen')
+
+    await createBlog(page, 'number1', 'author1', 'http://example1.com')
+    const row1 = page.locator('[class="blog"]').filter({ hasText: 'number1' })
+    await row1.getByRole('button', { name: 'view' }).click()
+
+    await createBlog(page, 'number2', 'author2', 'http://example2.com')
+    const row2 = page.locator('[class="blog"]').filter({ hasText: 'number2' })
+    await row2.getByRole('button', { name: 'view' }).click()
+
+    await createBlog(page, 'number3', 'author3', 'http://example3.com')
+    const row3 = page.locator('[class="blog"]').filter({ hasText: 'number3' })
+    await row3.getByRole('button', { name: 'view' }).click()
+
+    await row2.getByRole('button', { name: 'like' }).click()
+    await expect(row2).toContainText('likes 1')
+    await row2.getByRole('button', { name: 'like' }).click()
+    await expect(row2).toContainText('likes 2')
+
+    await row1.getByRole('button', { name: 'like' }).click()
+    await expect(row1).toContainText('likes 1')
+
+    const blogRows = page.locator('[class="blog"]')
+    await expect(blogRows.nth(0)).toContainText('number2')
+    await expect(blogRows.nth(1)).toContainText('number1')
+    await expect(blogRows.nth(2)).toContainText('number3')
+
+    await row1.getByRole('button', { name: 'like' }).click()
+    await expect(row1).toContainText('likes 2')
+    await row1.getByRole('button', { name: 'like' }).click()
+    await expect(row1).toContainText('likes 3')
+
+    await expect(blogRows.nth(0)).toContainText('number1')
+    await expect(blogRows.nth(1)).toContainText('number2')
+    await expect(blogRows.nth(2)).toContainText('number3')
+  })
+
 })

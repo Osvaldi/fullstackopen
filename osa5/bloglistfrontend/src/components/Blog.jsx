@@ -14,7 +14,7 @@ const Blog = ({ name, blog, handleLikeUpdate, handleDeleteBlog }) => {
 
   const toggleContent = () => setShowContent(prev => !prev)
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} class="blog">
       {blog.title} {blog.author}
       <button onClick={toggleContent}>{showContent ? 'hide' : 'view'}</button>
       {showContent && (
