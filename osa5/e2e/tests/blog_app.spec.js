@@ -79,4 +79,22 @@ test('a blog can be deleted by the creator', async ({ page }) => {
     await expect(successDiv).toHaveCSS('color', 'rgb(0, 128, 0)')
   })
 
+test('only the creator of a blog can see the delete button', async ({ page, request }) => {
+    await loginWith(page, 'mluukkai', 'salainen')
+    await createBlog(page, 'Test Blog', 'Test Author', 'http://example.com')
+    await page.getByRole('button', { name: 'view' }).click()
+    await expect(page.getByRole('button', { name: 'remove' })).toBeVisible()
+    await page.getByRole('button', { name: 'logout' }).click()
+    await request.post('http://localhost:3003/api/users', {
+      data: {
+        name: 'test user',
+        username: 'test username',
+        password: 'testpassword'
+      }
+    })
+    await loginWith(page, 'test username', 'testpassword')
+    await page.getByRole('button', { name: 'view' }).click()
+    await expect(page.getByRole('button', { name: 'remove' })).not.toBeVisible()
+  })
+
 })
