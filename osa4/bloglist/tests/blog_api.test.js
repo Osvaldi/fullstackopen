@@ -184,7 +184,7 @@ describe('update of a blog', () => {
     await User.deleteMany({})
 
     const blogToInsert = {
-      title: 'Blog to update',
+      title: 'update of a blog',
       author: 'Test Author',
       url: 'https://example.com',
       likes: 5,
