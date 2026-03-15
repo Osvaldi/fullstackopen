@@ -59,7 +59,7 @@ const App = () => {
     try {
       BlogViewRef.current.toggleVisibility()
       const newBlog = await blogService.create({ title, author, url })
-      setBlogs(blogs.concat(newBlog))
+      setBlogs(blogs.concat({ ...newBlog, user }))
       showNotification(`a new blog ${newBlog.title} by ${newBlog.author} added`, 'success')
     } catch {
       showNotification('error creating blog', 'error')

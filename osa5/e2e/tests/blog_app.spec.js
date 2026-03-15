@@ -53,7 +53,7 @@ describe('Blog app', () => {
     await expect(page.getByRole('button', { name: 'view' })).toBeVisible()
   })
 
-  test('a blog can be liked', async ({ page }) => {
+test('a blog can be liked', async ({ page }) => {
     await loginWith(page, 'mluukkai', 'salainen')
     await createBlog(page, 'Test Blog', 'Test Author', 'http://example.com')
     await page.getByRole('button', { name: 'view' }).click()
@@ -61,4 +61,22 @@ describe('Blog app', () => {
     await page.getByRole('button', { name: 'like' }).click()
     await expect(page.getByText('likes 1')).toBeVisible()
   })
+
+test('a blog can be deleted by the creator', async ({ page }) => {
+    await loginWith(page, 'mluukkai', 'salainen')
+    await createBlog(page, 'Test Blog', 'Test Author', 'http://example.com')
+    await page.getByRole('button', { name: 'view' }).click()
+    await expect(page.getByRole('button', { name: 'remove' })).toBeVisible()
+
+    page.on('dialog', dialog => dialog.accept())
+    await page.getByRole('button', { name: 'remove' }).click()
+
+    await expect(page.getByText('Test Blog Test Author')).not.toBeVisible()
+    const successDiv = page.locator('.success')
+    await expect(successDiv).toBeVisible()
+    await expect(successDiv).toContainText('blog removed')
+    await expect(successDiv).toHaveCSS('border-style', 'solid')
+    await expect(successDiv).toHaveCSS('color', 'rgb(0, 128, 0)')
+  })
+
 })
