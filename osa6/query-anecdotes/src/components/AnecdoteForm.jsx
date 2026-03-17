@@ -9,9 +9,13 @@ const AnecdoteForm = () => {
 
   const newNoteMutation = useMutation({
     mutationFn: createAnecdote,
-    onSuccess: () => {
+    onSuccess: (createdAnecdote) => {
       queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
+      notificationContext.notificationDispatch({type: 'SET_NOTIFICATION', payload: `anecdote '${createdAnecdote.content}' created`})
     },
+    onError: (error) => {
+      notificationContext.notificationDispatch({type: 'SET_NOTIFICATION', payload: error.message})
+    }
   })
 
   const getId = () => (100000 * Math.random()).toFixed(0)
@@ -21,7 +25,6 @@ const AnecdoteForm = () => {
     const content = event.target.anecdote.value
     event.target.anecdote.value = ''
     newNoteMutation.mutate({ content, id: getId(), votes: 0 })
-    notificationContext.notificationDispatch({ type: 'SET_NOTIFICATION', payload: `anecdote '${content}' created` })
   }
 
   return (
