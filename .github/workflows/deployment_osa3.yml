@@ -1,0 +1,91 @@
+name: Deployment pipeline - OSA3
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/deployment_osa3.yml'
+      - 'osa3/**'
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+    paths:
+      - '.github/workflows/deployment_osa3.yml'
+      - 'osa3/**'
+
+jobs:
+  backend_checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Install backend dependencies
+        run: cd osa3/puhelinluettelobackend && npm install
+      - name: Check backend style
+        run: cd osa3/puhelinluettelobackend && npm run lint
+
+  frontend_build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: osa3/frontend/package-lock.json
+      - name: Install frontend dependencies
+        run: cd osa3/frontend && npm install
+      - name: Build frontend
+        run: cd osa3/frontend && npm run build
+
+  deploy:
+    needs: [backend_checks, frontend_build]
+    if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deployment
+        run: curl ${{ secrets.RENDER_DEPLOY_HOOK }}
+
+  notify_failure:
+    needs: [backend_checks, frontend_build, deploy]
+    if: ${{ always() && (needs.backend_checks.result == 'failure' || needs.frontend_build.result == 'failure' || needs.deploy.result == 'failure') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Discord on pipeline failure
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          nodetail: true
+          title: "Build failed!"
+          description: |
+            Build failed!
+
+  tag_release:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@4ed44965e0db8dab2b466a16da04aec3cc312fd8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+
+  notify_success:
+    needs: [deploy]
+    if: ${{ needs.deploy.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Discord on successful deployment
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          nodetail: true
+          title: "Deployment successful!"
+          description: |
+            New version successfully deployed!
